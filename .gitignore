@@ -1,0 +1,7 @@
+build/
+dist/
+.research/
+
+# Local reverse-engineering workspaces from the Shift-map archive branch.
+_ghidra_projects/
+reverse_engineering/

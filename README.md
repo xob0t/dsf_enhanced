@@ -1,0 +1,56 @@
+﻿# DSF Enhanced
+
+An ASI plugin for Driver: San Francisco on PC. Target exe version 1.04
+
+## What it does
+
+- Fixes the aspect ratio and widens gameplay FOV on ultrawide screens.
+- Fits Bink cinematics inside the area the game draws them in, so movies keep their proportions.
+- Adds borderless windowed mode and an option to turn off VSync.
+- Forces anisotropic and trilinear texture filtering. It also has mip and LOD-bias settings.
+- Raises gameplay LOD thresholds and lets you extend how far away civilian traffic spawns.
+- Skips the legal-screen wait and dismisses the prompt about Ubisoft's servers, which no longer exist.
+
+## Install
+
+Copy three files from the release ZIP into the game folder, next to `Driver.exe`:
+
+- `winmm.dll` (Ultimate ASI Loader)
+- `dsf_enhanced.asi`
+- `dsf_enhanced.ini`
+
+Settings live in `dsf_enhanced.ini`. The defaults turn on borderless mode, 16x anisotropic filtering, trilinear filtering, and higher gameplay detail. A few values you may want to change:
+
+- `TrafficSpawnDistanceScale=4.0` makes civilian cars spawn and despawn four times farther out. Set it to `1.0` for the game's normal radius.
+- `LODEngineThresholdScale` and `MapDetailLODThresholdScale` at `1.0` restore the native LOD thresholds.
+- `[General] Log=0` stops the plugin from writing `dsf_enhanced.log`.
+
+To uninstall, delete the three files. If the game already has a `winmm.dll`, from another ASI loader for example, back it up before installing. Nothing here touches `Driver.exe` or `gameconfig.txt`.
+
+## Build
+
+You need Windows, PowerShell, and the Visual Studio 2022 C++ build tools with the x86 toolchain and a Windows SDK.
+
+From the repository root:
+
+```powershell
+.\build.ps1
+```
+
+This writes the release files, this README, the license, and `DSF-Enhanced.zip` to `dist/`. To install into a local copy of the game:
+
+```powershell
+.\install.ps1 -GamePath "D:\Games\Driver San Francisco"
+```
+
+`install.ps1` runs the build first if `dist/` is missing any files.
+
+## Repository layout
+
+- `src/` has the plugin source and the default `dsf_enhanced.ini`.
+- `tests/` has the cinematic fit test. `build.ps1` runs it and stops if it fails.
+- `third_party/winmm.dll` is the bundled [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader), MIT-licensed.
+
+## License
+
+MIT. See `LICENSE`.
