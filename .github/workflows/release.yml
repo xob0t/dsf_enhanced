@@ -1,0 +1,60 @@
+name: Build And Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build And Test
+        shell: powershell
+        run: |
+          powershell -ExecutionPolicy Bypass -File .\build.ps1
+
+      - name: Verify Release Files
+        shell: powershell
+        run: |
+          $required = @(
+            ".\dist\winmm.dll",
+            ".\dist\dsf_enhanced.asi",
+            ".\dist\dsf_enhanced.ini",
+            ".\dist\README.md",
+            ".\dist\LICENSE",
+            ".\dist\DSF-Enhanced.zip"
+          )
+
+          foreach ($path in $required) {
+            if (-not (Test-Path -LiteralPath $path)) {
+              throw "Missing release file: $path"
+            }
+          }
+
+      - name: Prepare Release Zip
+        shell: powershell
+        run: |
+          Copy-Item -LiteralPath ".\dist\DSF-Enhanced.zip" -Destination "DSF-Enhanced-${{ github.ref_name }}.zip" -Force
+
+      - name: Upload Test Artifact
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: DSF-Enhanced-${{ github.ref_name }}
+          path: DSF-Enhanced-${{ github.ref_name }}.zip
+
+      - name: Create GitHub Release
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: DSF-Enhanced-${{ github.ref_name }}.zip
